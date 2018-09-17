@@ -14,7 +14,6 @@
     "start": "cross-env NODE_ENV=development npm run start:react",
     "start:react": "cross-env BROWSER=none node scripts/start.js",
     "build": "node scripts/build.js",
-    "build:docz": "docz build",
     "package:linux": "electron-packager . --platform=linux --prune=true --out=release-builds --overwrite",
     "package:mac": "electron-packager . --platform=darwin --arch=x64 --icon=src/assets/icons/mac/logo.icns --prune=true --out=release-builds --overwrite",
     "package:win": "electron-packager . --platform=win32 --arch=x64 --icon=src/assets/icons/win/logo.ico --prune=true --out=release-builds --overwrite",
@@ -30,7 +29,9 @@
     "detect-port": "cross-env ./node_modules/detect-port-alt/bin/detect-port 3000",
     "precommit": "yarn run flow && lint-staged",
     "build-storybook": "build-storybook -c .storybook -o storybook-static",
-    "storybook": "start-storybook -p 9001 -c .storybook"
+    "storybook": "start-storybook -p 9001 -c .storybook",
+    "docz:build": "docz build",
+    "docz:deploy": "yarn docz:build && "
   },
   "lint-staged": {
     "*.js": [
