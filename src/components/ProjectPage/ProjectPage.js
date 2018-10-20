@@ -27,6 +27,7 @@ import type { Project } from '../../types';
 type Props = {
   project: Project,
   loadDependencyInfoFromDisk: (projectId: string, projectPath: string) => any,
+  reinstallDependencies: (projectId: string) => void,
 };
 
 class ProjectPage extends PureComponent<Props> {
@@ -54,7 +55,11 @@ class ProjectPage extends PureComponent<Props> {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (this.props.project.id !== nextProps.project.id) {
+    const { project } = this.props;
+    if (
+      project.id !== nextProps.project.id ||
+      project.dependencies.length === 0
+    ) {
       this.props.loadDependencyInfoFromDisk(
         nextProps.project.id,
         nextProps.project.path
@@ -63,7 +68,7 @@ class ProjectPage extends PureComponent<Props> {
   }
 
   render() {
-    const { project } = this.props;
+    const { project, reinstallDependencies } = this.props;
 
     return (
       <FadeIn>
@@ -108,6 +113,21 @@ class ProjectPage extends PureComponent<Props> {
           <Spacer size={30} />
           <TaskRunnerPane leftSideWidth={200} />
 
+          {project.dependencies.length === 0 && (
+            <Fragment>
+              <Spacer size={30} />
+              <InstallWrapper>
+                <FillButton
+                  size="large"
+                  colors={[COLORS.green[700], COLORS.lightGreen[500]]}
+                  onClick={() => reinstallDependencies(project.id)}
+                >
+                  Install Dependencies
+                </FillButton>
+              </InstallWrapper>
+            </Fragment>
+          )}
+
           {project.dependencies.length > 0 && (
             <Fragment>
               <Spacer size={30} />
@@ -132,6 +152,11 @@ const ProjectActionBar = styled.div`
   display: flex;
 `;
 
+const InstallWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
 const fadeIn = keyframes`
   from { opacity: 0.5 }
   to { opacity: 1 }
@@ -149,5 +174,6 @@ export default connect(
   mapStateToProps,
   {
     loadDependencyInfoFromDisk: actions.loadDependencyInfoFromDisk,
+    reinstallDependencies: actions.reinstallDependencies,
   }
 )(ProjectPage);

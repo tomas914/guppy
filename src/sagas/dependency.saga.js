@@ -1,25 +1,32 @@
 // @flow
-import { select, call, put, takeEvery } from 'redux-saga/effects';
+import { select, call, put, take, takeEvery } from 'redux-saga/effects';
 import { getPathForProjectId } from '../reducers/paths.reducer';
 import { getNextActionForProjectId } from '../reducers/queue.reducer';
 import {
   installDependencies,
+  reinstallDependencies,
   uninstallDependencies,
 } from '../services/dependencies.service';
 import { loadProjectDependencies } from '../services/read-from-disk.service';
+import { waitForAsyncRimraf } from './delete-project.saga';
 import {
   ADD_DEPENDENCY,
   UPDATE_DEPENDENCY,
   DELETE_DEPENDENCY,
   INSTALL_DEPENDENCIES_START,
+  REINSTALL_DEPENDENCIES_START,
   UNINSTALL_DEPENDENCIES_START,
   queueDependencyInstall,
   queueDependencyUninstall,
   installDependenciesError,
   installDependenciesFinish,
+  reinstallDependenciesFinish,
+  reinstallDependenciesError,
   uninstallDependenciesError,
   uninstallDependenciesFinish,
   startNextActionInQueue,
+  refreshProjectsStart,
+  setStatusText,
 } from '../actions';
 
 import type { Action } from 'redux';
@@ -89,6 +96,44 @@ export function* handleInstallDependenciesStart({
   }
 }
 
+export function* handleReinstallDependenciesStart({
+  projectId,
+}: Action): Saga<void> {
+  if (!projectId) {
+    // don't trigger a reinstall if we're not having a projectId --> fail silently
+    return;
+  }
+  const projectPath = yield select(getPathForProjectId, { projectId });
+  try {
+    // delete node_modules folder
+    yield call(waitForAsyncRimraf, projectPath);
+
+    // reinstall dependencies
+    yield call(reinstallDependencies, projectPath);
+
+    // eventChannel not working yet --> I'd like to display a progess on loadingSrceen.
+    // try {
+    //   while (true) {
+    //     let message = yield take(channel);
+    //     showProgress(message);
+    //     yield put(setStatusText(message));
+    //   }
+    // } catch (err) {}
+
+    // reinstall finished --> hide waiting spinner
+    yield put(reinstallDependenciesFinish());
+
+    yield put(refreshProjectsStart());
+  } catch (err) {
+    yield call(
+      [console, console.error],
+      'Failed to reinstall dependencies',
+      err
+    );
+    yield put(reinstallDependenciesError(projectId));
+  }
+}
+
 export function* handleUninstallDependenciesStart({
   projectId,
   dependencies,
@@ -108,6 +153,15 @@ export function* handleUninstallDependenciesStart({
   }
 }
 
+// helpers
+// export function showProgress(message: string) {
+//   const [text, progress, total] = /\[(\d+)\/(\d+)\]/.exec(message);
+//   console.log('progress', text, progress, total);
+//   return `Please wait. Installation Status ${Math.round(
+//     parseInt(progress) / parseInt(total)
+//   ) * 100}%`;
+// }
+
 // Installs/uninstalls fail silently - the only notice of a failed action
 // visible to the user is either the dependency disappearing entirely or
 // having its status set back to `idle`.
@@ -118,6 +172,10 @@ export default function* rootSaga(): Saga<void> {
   yield takeEvery(UPDATE_DEPENDENCY, handleUpdateDependency);
   yield takeEvery(DELETE_DEPENDENCY, handleDeleteDependency);
   yield takeEvery(INSTALL_DEPENDENCIES_START, handleInstallDependenciesStart);
+  yield takeEvery(
+    REINSTALL_DEPENDENCIES_START,
+    handleReinstallDependenciesStart
+  );
   yield takeEvery(
     UNINSTALL_DEPENDENCIES_START,
     handleUninstallDependenciesStart

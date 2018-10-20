@@ -37,6 +37,7 @@ type Props = {
   showResetStatePrompt: () => any,
   showProjectSettings: () => any,
   selectProject: (projectId: string) => any,
+  reinstallDependencies: (projectId: string) => any,
 };
 
 class ApplicationMenu extends Component<Props> {
@@ -68,6 +69,7 @@ class ApplicationMenu extends Component<Props> {
       showProjectSettings,
       selectProject,
       projects,
+      reinstallDependencies,
     } = props;
 
     const template = [
@@ -202,6 +204,11 @@ class ApplicationMenu extends Component<Props> {
           click: () => showProjectSettings(),
           accelerator: 'CmdOrCtrl+shift+,',
         },
+        {
+          label: isMac ? 'Reinstall Dependencies' : 'Reinstall dependencies',
+          click: () => reinstallDependencies(selectedProject.id),
+          accelerator: 'CmdOrCtrl+alt+R',
+        },
         { type: 'separator' },
       ];
 
@@ -287,6 +294,7 @@ const mapDispatchToProps = {
   showResetStatePrompt: actions.showResetStatePrompt,
   showProjectSettings: actions.showProjectSettings,
   selectProject: actions.selectProject,
+  reinstallDependencies: actions.reinstallDependencies,
 };
 
 export default connect(
