@@ -109,16 +109,19 @@ export function* handleReinstallDependenciesStart({
     yield call(waitForAsyncRimraf, projectPath);
 
     // reinstall dependencies
-    yield call(reinstallDependencies, projectPath);
+    const channel = yield call(reinstallDependencies, projectPath);
 
     // eventChannel not working yet --> I'd like to display a progess on loadingSrceen.
-    // try {
-    //   while (true) {
-    //     let message = yield take(channel);
-    //     showProgress(message);
-    //     yield put(setStatusText(message));
-    //   }
-    // } catch (err) {}
+    try {
+      while (true) {
+        let message = yield take(channel);
+        const progress = showProgress(message);
+        console.log('will set progress', progress);
+        yield put(setStatusText(progress));
+      }
+    } catch (err) {
+      console.log('error', err);
+    }
 
     // reinstall finished --> hide waiting spinner
     yield put(reinstallDependenciesFinish());
@@ -154,13 +157,14 @@ export function* handleUninstallDependenciesStart({
 }
 
 // helpers
-// export function showProgress(message: string) {
-//   const [text, progress, total] = /\[(\d+)\/(\d+)\]/.exec(message);
-//   console.log('progress', text, progress, total);
-//   return `Please wait. Installation Status ${Math.round(
-//     parseInt(progress) / parseInt(total)
-//   ) * 100}%`;
-// }
+export function showProgress(message: string) {
+  const [text, progressStr, totalStr] = /\[(\d+)\/(\d+)\]/.exec(message);
+  const progress = parseInt(progressStr);
+  const total = parseInt(totalStr);
+
+  console.log('progress', text, progress, total);
+  return `Please wait. Installation Status ${(progress / total) * 100}%`;
+}
 
 // Installs/uninstalls fail silently - the only notice of a failed action
 // visible to the user is either the dependency disappearing entirely or
