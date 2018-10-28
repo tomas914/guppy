@@ -24,19 +24,22 @@ export default (state: State = initialState, action: Action = {}) => {
     case START_DELETING_PROJECT:
     case REINSTALL_DEPENDENCIES_START:
       return {
+        ...state,
         blockingActionActive: true,
       };
 
     case FINISH_DELETING_PROJECT:
     case REINSTALL_DEPENDENCIES_FINISH:
       return {
+        ...state,
         blockingActionActive: false,
       };
 
     case SET_STATUS_TEXT:
+      const newStatus = action.statusText;
       return {
         ...state,
-        statusText: action.statusText,
+        statusText: newStatus !== '' ? newStatus : state.statusText, // only update if string defined
       };
 
     case RESET_STATUS_TEXT:
