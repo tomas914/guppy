@@ -6,6 +6,7 @@ import {
   REINSTALL_DEPENDENCIES_FINISH,
   SET_STATUS_TEXT,
   RESET_STATUS_TEXT,
+  DELETE_PROJECT_ERROR,
 } from '../actions';
 
 import type { Action } from 'redux';
@@ -31,6 +32,7 @@ export default (state: State = initialState, action: Action = {}) => {
 
     case FINISH_DELETING_PROJECT:
     case REINSTALL_DEPENDENCIES_FINISH:
+    case DELETE_PROJECT_ERROR:
       return {
         ...state,
         blockingActionActive: false,
