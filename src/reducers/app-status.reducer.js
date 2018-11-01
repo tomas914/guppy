@@ -12,6 +12,7 @@ import type { Action } from 'redux';
 
 type State = {
   blockingActionActive: boolean,
+  statusText: string,
 };
 
 export const initialState = {
