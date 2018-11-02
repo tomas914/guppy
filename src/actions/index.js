@@ -4,6 +4,7 @@ import uuid from 'uuid/v1';
 import { loadAllProjectDependencies } from '../services/read-from-disk.service';
 
 import type {
+  AppSettings,
   Project,
   ProjectInternal,
   ProjectType,
@@ -78,17 +79,23 @@ export const SAVE_PROJECT_SETTINGS_FINISH = 'SAVE_PROJECT_SETTINGS_FINISH';
 export const SET_STATUS_TEXT = 'SET_STATUS_TEXT';
 export const RESET_STATUS_TEXT = 'RESET_STATUS_TEXT';
 
+// app settings
+export const SHOW_APP_SETTINGS = 'SHOW_APP_SETTINGS';
+export const SAVE_APP_SETTINGS_START = 'SAVE_APP_SETTINGS_START';
+export const CHANGE_DEFAULT_PROJECT_PATH = 'CHANGE_DEFAULT_PROJECT_PATH';
 //
 //
 // Action Creators
 //
 export const addProject = (
   project: ProjectInternal,
+  projectHomePath: string,
   projectType: ProjectType,
   isOnboardingCompleted: boolean
 ) => ({
   type: ADD_PROJECT,
   project,
+  projectHomePath,
   projectType,
   isOnboardingCompleted,
 });
@@ -143,11 +150,6 @@ export const createNewProjectCancel = () => ({
 
 export const createNewProjectFinish = () => ({
   type: CREATE_NEW_PROJECT_FINISH,
-});
-
-export const changeProjectHomePath = (homePath: string) => ({
-  type: CHANGE_PROJECT_HOME_PATH,
-  homePath,
 });
 
 export const dismissSidebarIntro = () => ({
@@ -376,6 +378,21 @@ export const showProjectSettings = () => ({
 
 export const hideModal = () => ({
   type: HIDE_MODAL,
+});
+
+// app settings
+export const showAppSettings = () => ({
+  type: SHOW_APP_SETTINGS,
+});
+
+export const saveAppSettingsStart = (settings: AppSettings) => ({
+  type: SAVE_APP_SETTINGS_START,
+  settings,
+});
+
+export const changeDefaultProjectPath = (defaultProjectPath: string) => ({
+  type: CHANGE_DEFAULT_PROJECT_PATH,
+  defaultProjectPath,
 });
 
 // project settings related actions
