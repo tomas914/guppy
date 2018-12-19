@@ -17,7 +17,7 @@ const TextInput = ({ isFocused, hasError, children, ...delegated }: Props) => (
   </Wrapper>
 );
 
-const getBorderColor = (props: Props) => {
+export const getBorderColor = (props: Props) => {
   if (props.hasError) {
     return COLORS.pink[500];
   } else if (props.isFocused) {

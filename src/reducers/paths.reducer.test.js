@@ -40,7 +40,7 @@ describe('Paths reducer', () => {
       expect(reducer(prevState, action)).toMatchInlineSnapshot(`
 Object {
   "byId": Object {
-    "fds8fd7s97f": "path\\\\to\\\\projects\\\\hello-world",
+    "fds8fd7s97f": "path/to/projects/hello-world",
   },
 }
 `);
